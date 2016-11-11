@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="software.credible.eventclientapp" >
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+
+        <meta-data android:name="roboguice.modules" android:value="software.credible.eventclientapp.EventModule" />
+
+        <activity
+            android:name=".activity.LaunchActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".activity.LoginActivity" android:theme="@style/AppTheme.Dark"/>
+        <activity android:name=".activity.SignupActivity" android:theme="@style/AppTheme.Dark"/>
+        <activity android:name=".activity.BrowseEventsActivity" />
+    </application>
+
+</manifest>

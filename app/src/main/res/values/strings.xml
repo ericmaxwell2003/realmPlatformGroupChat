@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Event Client App Android</string>
+
+    <string name="hello_world">Hello world!</string>
+
+    <string name="action_refresh">Refresh</string>
+    <string name="action_logout">Logout</string>
+
+    <string name="title_activity_browse_events">BrowseEventsActivity</string>
+</resources>
