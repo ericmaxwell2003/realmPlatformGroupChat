@@ -3,6 +3,7 @@ package software.credible.eventclientapp.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -77,14 +78,17 @@ public class LoginActivity extends RoboAppCompatActivity implements SyncUser.Cal
 
     public void performLogin(View view) {
         Log.d(TAG, "Login");
-        showProgress();
-
         String username = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
-        SyncUser.loginAsync(
-                SyncCredentials.usernamePassword(username, password, false),
-                GroupChatApplication.AUTH_URL, this);
+        if(TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
+            Toast.makeText(getBaseContext(), "Username & Password required", Toast.LENGTH_LONG).show();
+        } else {
+            showProgress();
+            SyncUser.loginAsync(
+                    SyncCredentials.usernamePassword(username, password, false),
+                    GroupChatApplication.AUTH_URL, this);
+        }
     }
 
     public void loginComplete(SyncUser user) {

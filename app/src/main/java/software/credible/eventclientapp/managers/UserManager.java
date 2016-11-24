@@ -2,7 +2,6 @@ package software.credible.eventclientapp.managers;
 
 import java.util.UUID;
 
-import io.realm.ObjectServerError;
 import io.realm.Realm;
 import io.realm.SyncConfiguration;
 import io.realm.SyncUser;

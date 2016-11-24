@@ -3,6 +3,7 @@ package software.credible.eventclientapp.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -13,6 +14,7 @@ import java.util.Date;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
+import io.realm.RealmModel;
 import io.realm.RealmResults;
 import roboguice.inject.ContentView;
 import software.credible.eventclientapp.R;
@@ -21,6 +23,7 @@ import software.credible.eventclientapp.activity.helper.RoboAppCompatActivity;
 import software.credible.eventclientapp.managers.MessageManager;
 import software.credible.eventclientapp.managers.UserManager;
 import software.credible.eventclientapp.model.Message;
+import software.credible.eventclientapp.model.Team;
 
 @ContentView(R.layout.activity_browse_events)
 public class MessageThreadActivity extends RoboAppCompatActivity  {
@@ -31,8 +34,8 @@ public class MessageThreadActivity extends RoboAppCompatActivity  {
     private MessageAdapter adapter;
     private RecyclerView recycler;
     private ProgressDialog progressDialog;
-    private RealmChangeListener<RealmResults<Message>> messageRealmChangeListener;
     private RealmResults<Message> messages;
+    private Team team;
     private boolean initialLoadComplete;
 
     @Override
@@ -48,20 +51,26 @@ public class MessageThreadActivity extends RoboAppCompatActivity  {
         initialLoadComplete = false;
         showProgress();
 
-        messages = MessageManager.findAllMessagesAsync(realm);
+        team = MessageManager.findCurrentTeamAsync(realm);
+        team.addChangeListener(new RealmChangeListener<RealmModel>() {
+            @Override
+            public void onChange(RealmModel element) {
+                if(team.isLoaded() && team != null && getSupportActionBar() != null) {
+                    getSupportActionBar().setTitle(team.getTeamName());
+                }
+            }
+        });
 
-        messageRealmChangeListener = new RealmChangeListener<RealmResults<Message>>() {
+        messages = MessageManager.findAllMessagesAsync(realm);
+        messages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
             @Override
             public void onChange(RealmResults<Message> element) {
-                if(initialLoadComplete) {
-                    return;
-                } else if(messages.isLoaded()) {
+                if(!initialLoadComplete && messages.isLoaded()) {
                     hideProgress();
                     initialLoadComplete = true;
                 }
             }
-        };
-        messages.addChangeListener(messageRealmChangeListener);
+        });
 
         adapter = new MessageAdapter(this, messages, true);
 
@@ -97,6 +106,7 @@ public class MessageThreadActivity extends RoboAppCompatActivity  {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        realm.removeAllChangeListeners();
         realm.close();
     }
 

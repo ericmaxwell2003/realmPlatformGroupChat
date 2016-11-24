@@ -3,6 +3,7 @@ package software.credible.eventclientapp.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -48,36 +49,43 @@ public class SignupActivity extends RoboAppCompatActivity {
 
     public void performSignUp(View view) {
         Log.d(TAG, "Signup");
-        showProgress();
         final String teamName = team.getText().toString();
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
-        SyncUser.loginAsync(SyncCredentials.usernamePassword(email, password, true), AUTH_URL, new SyncUser.Callback() {
-            @Override
-            public void onSuccess(SyncUser user) {
-                UserManager.setActiveUser(user);
-                UserManager.addUserToTeam(user.getIdentity(), teamName);
-                hideProgress();
-                Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                intent.setAction(LoginActivity.AUTO_LOGIN);
-                startActivity(intent);
-                finish();
-           }
+        if(TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(teamName)) {
+            Toast.makeText(getBaseContext(), "All fields required", Toast.LENGTH_LONG).show();
 
-            @Override
-            public void onError(ObjectServerError error) {
-                hideProgress();
-                String errorMsg;
-                switch (error.getErrorCode()) {
-                    case EXISTING_ACCOUNT: errorMsg = "Account already exists"; break;
-                    default:
-                        errorMsg = error.toString();
+        } else {
+
+            showProgress();
+            SyncUser.loginAsync(SyncCredentials.usernamePassword(email, password, true), AUTH_URL, new SyncUser.Callback() {
+                @Override
+                public void onSuccess(SyncUser user) {
+                    UserManager.setActiveUser(user);
+                    UserManager.addUserToTeam(user.getIdentity(), teamName);
+                    hideProgress();
+                    Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                    intent.setAction(LoginActivity.AUTO_LOGIN);
+                    startActivity(intent);
+                    finish();
                 }
-                Toast.makeText(getBaseContext(), errorMsg, Toast.LENGTH_LONG).show();
-            }
-        });
 
+                @Override
+                public void onError(ObjectServerError error) {
+                    hideProgress();
+                    String errorMsg;
+                    switch (error.getErrorCode()) {
+                        case EXISTING_ACCOUNT:
+                            errorMsg = "Account already exists";
+                            break;
+                        default:
+                            errorMsg = error.toString();
+                    }
+                    Toast.makeText(getBaseContext(), errorMsg, Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 
     private void showProgress() {

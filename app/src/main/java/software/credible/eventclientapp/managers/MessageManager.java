@@ -7,9 +7,16 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.SyncUser;
 import software.credible.eventclientapp.model.Message;
+import software.credible.eventclientapp.model.Team;
 import software.credible.eventclientapp.model.UserReference;
 
 public class MessageManager {
+
+    public static Team findCurrentTeamAsync(Realm realm) {
+        return realm.where(Team.class)
+                .equalTo("members.userIdentity", SyncUser.currentUser().getIdentity())
+                .findFirstAsync();
+    }
 
     public static RealmResults<Message> findAllMessagesAsync(Realm realm) {
         return realm.where(Message.class)
