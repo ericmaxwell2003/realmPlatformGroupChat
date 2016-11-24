@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".GroupChatApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -12,18 +13,14 @@
 
         <meta-data android:name="roboguice.modules" android:value="software.credible.eventclientapp.EventModule" />
 
-        <activity
-            android:name=".activity.LaunchActivity"
-            android:label="@string/app_name" >
+        <activity android:name=".activity.LoginActivity" android:theme="@style/AppTheme.Dark">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".activity.LoginActivity" android:theme="@style/AppTheme.Dark"/>
         <activity android:name=".activity.SignupActivity" android:theme="@style/AppTheme.Dark"/>
-        <activity android:name=".activity.BrowseEventsActivity" />
+        <activity android:name=".activity.MessageThreadActivity" />
     </application>
 
 </manifest>

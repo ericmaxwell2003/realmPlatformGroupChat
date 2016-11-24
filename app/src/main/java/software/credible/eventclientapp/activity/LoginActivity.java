@@ -2,35 +2,31 @@ package software.credible.eventclientapp.activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import javax.inject.Inject;
+import io.realm.SyncCredentials;
+import io.realm.ObjectServerError;
+import io.realm.SyncUser;
 
-import software.credible.eventclientapp.R;
-import software.credible.eventclientapp.activity.helper.RoboAppCompatActivity;
-import software.credible.eventclientapp.remote.AuthenticationService;
-import software.credible.eventclientapp.remote.TokenHolder;
-import software.credible.eventclientapp.remote.dto.LoginDto;
-import software.credible.eventclientapp.remote.dto.OAuthTokenDto;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
+import software.credible.eventclientapp.GroupChatApplication;
+import software.credible.eventclientapp.R;
+import software.credible.eventclientapp.managers.UserManager;
+import software.credible.eventclientapp.activity.helper.RoboAppCompatActivity;
 
 @ContentView(R.layout.activity_login)
-public class LoginActivity extends RoboAppCompatActivity {
+public class LoginActivity extends RoboAppCompatActivity implements SyncUser.Callback {
 
+    public static final String AUTO_LOGIN = "software.credible.eventclientapp.activity.LoginActivity.AUTO_LOGIN";
     private static final String TAG = "LoginActivity";
 
-    @Inject private TokenHolder tokenHolder;
-    @Inject private AuthenticationService authenticationService;
-
-    @InjectView(R.id.input_username) EditText usernameText;
+    @InjectView(R.id.input_username) EditText emailText;
     @InjectView(R.id.input_password) EditText passwordText;
     @InjectView(R.id.btn_login) Button loginButton;
 
@@ -42,6 +38,36 @@ public class LoginActivity extends RoboAppCompatActivity {
         progressDialog = new ProgressDialog(this, R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Authenticating...");
+
+        if(AUTO_LOGIN.equals(getIntent().getAction())) {
+            final SyncUser user = SyncUser.currentUser();
+            if (user != null) {
+                loginComplete(user);
+            }
+        }
+    }
+
+    @Override
+    public void onSuccess(SyncUser user) {
+        hideProgress();
+        loginComplete(user);
+    }
+
+    @Override
+    public void onError(ObjectServerError error) {
+        hideProgress();
+        String errorMsg;
+        switch (error.getErrorCode()) {
+            case UNKNOWN_ACCOUNT:
+                errorMsg = "Account does not exists.";
+                break;
+            case INVALID_CREDENTIALS:
+                errorMsg = "The provided credentials are invalid!"; // This message covers also expired account token
+                break;
+            default:
+                errorMsg = error.toString();
+        }
+        Toast.makeText(getBaseContext(), errorMsg, Toast.LENGTH_LONG).show();
     }
 
     public void goToSignUp(View view) {
@@ -53,11 +79,19 @@ public class LoginActivity extends RoboAppCompatActivity {
         Log.d(TAG, "Login");
         showProgress();
 
-        String username = usernameText.getText().toString();
+        String username = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
-        LoginTask loginTask = new LoginTask();
-        loginTask.execute(username, password);
+        SyncUser.loginAsync(
+                SyncCredentials.usernamePassword(username, password, false),
+                GroupChatApplication.AUTH_URL, this);
+    }
+
+    public void loginComplete(SyncUser user) {
+        UserManager.setActiveUser(user);
+        Intent intent = new Intent(LoginActivity.this, MessageThreadActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void showProgress() {
@@ -69,35 +103,5 @@ public class LoginActivity extends RoboAppCompatActivity {
         loginButton.setEnabled(true);
         progressDialog.dismiss();
     }
-
-    private class LoginTask extends AsyncTask<String, Void, OAuthTokenDto> {
-
-        @Override
-        protected OAuthTokenDto doInBackground(String... credentials) {
-            LoginDto loginDto = new LoginDto();
-            loginDto.setUsername(credentials[0]);
-            loginDto.setPassword(credentials[1]);
-            OAuthTokenDto oAuthTokenDto = null;
-            try {
-                oAuthTokenDto = authenticationService.login(loginDto);
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-            }
-            return oAuthTokenDto;
-        }
-
-        @Override
-        protected void onPostExecute(OAuthTokenDto oAuthTokenDto) {
-            hideProgress();
-            if(oAuthTokenDto == null) {
-                Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-            } else {
-                tokenHolder.setToken(oAuthTokenDto);
-                Intent intent = new Intent(LoginActivity.this, BrowseEventsActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        }
-    };
 
 }
