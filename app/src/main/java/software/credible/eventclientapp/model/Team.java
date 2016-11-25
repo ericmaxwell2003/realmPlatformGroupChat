@@ -9,22 +9,22 @@ import io.realm.annotations.Required;
 
 public class Team extends RealmObject {
 
-    @PrimaryKey
-    @Required
-    private String teamId;
+//    @Required
+//    private String teamId;
 
+    @PrimaryKey
     @Required
     private  String teamName;
 
     private RealmList<UserReference> members;
 
-    public String getTeamId() {
-        return teamId;
-    }
-
-    public void setTeamId(String teamId) {
-        this.teamId = teamId;
-    }
+//    public String getTeamId() {
+//        return teamId;
+//    }
+//
+//    public void setTeamId(String teamId) {
+//        this.teamId = teamId;
+//    }
 
     public String getTeamName() {
         return teamName;

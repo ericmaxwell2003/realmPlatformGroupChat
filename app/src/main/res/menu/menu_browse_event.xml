@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="software.credible.eventclientapp.activity.MessageThreadActivity">
 
+    <item android:id="@+id/action_refresh" android:title="@string/action_refresh"
+        android:orderInCategory="100" app:showAsAction="never" />
+
     <item android:id="@+id/action_logout" android:title="@string/action_logout"
         android:orderInCategory="200" app:showAsAction="never" />
 

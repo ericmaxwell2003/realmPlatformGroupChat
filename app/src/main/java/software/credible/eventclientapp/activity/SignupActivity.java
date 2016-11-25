@@ -11,14 +11,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import io.realm.ObjectServerError;
-import io.realm.Realm;
 import io.realm.SyncCredentials;
 import io.realm.SyncUser;
 import software.credible.eventclientapp.R;
-import software.credible.eventclientapp.managers.UserManager;
 import software.credible.eventclientapp.activity.helper.RoboAppCompatActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
+import software.credible.eventclientapp.managers.DataManager;
 
 import static software.credible.eventclientapp.GroupChatApplication.AUTH_URL;
 
@@ -59,11 +58,12 @@ public class SignupActivity extends RoboAppCompatActivity {
         } else {
 
             showProgress();
-            SyncUser.loginAsync(SyncCredentials.usernamePassword(email, password, true), AUTH_URL, new SyncUser.Callback() {
+            SyncCredentials syncCredentials = SyncCredentials.usernamePassword(email, password, false);
+            SyncUser.loginAsync(syncCredentials, AUTH_URL, new SyncUser.Callback() {
                 @Override
                 public void onSuccess(SyncUser user) {
-                    UserManager.setActiveUser(user);
-                    UserManager.addUserToTeam(user.getIdentity(), teamName);
+                    DataManager.setActiveUser(user);
+                    DataManager.addUserToTeam(user.getIdentity(), teamName);
                     hideProgress();
                     Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
                     intent.setAction(LoginActivity.AUTO_LOGIN);

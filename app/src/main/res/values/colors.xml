@@ -11,6 +11,9 @@
     <color name="colorAccent">#ff4081</color>
 
     <!-- general text colors -->
+    <color name="messageSentByMe">#3696C0</color>
+    <color name="messageSentBySomeoneElse">@color/colorAccent</color>
+
     <color name="text">#212121</color>
     <color name="secondary">#727272</color>
     <color name="hint">#B8B8B8</color>

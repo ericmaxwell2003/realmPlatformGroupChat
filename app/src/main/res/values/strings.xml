@@ -3,7 +3,7 @@
 
     <string name="hello_world">Hello world!</string>
 
-    <string name="action_refresh">Add Message</string>
+    <string name="action_refresh">Clear Messages</string>
     <string name="action_logout">Logout</string>
 
     <string name="title_activity_browse_events">BrowseEventsActivity</string>

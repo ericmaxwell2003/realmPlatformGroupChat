@@ -1,12 +1,15 @@
 package software.credible.eventclientapp.activity.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -38,9 +41,11 @@ public class MessageAdapter extends RealmRecyclerViewAdapter<Message, MessageAda
         Message message = getItem(position);
         if(message != null) {
             if(message.getUserReference().getUserIdentity().equals(SyncUser.currentUser().getIdentity())) {
-                holder.messageText.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
+                holder.messageContainer.setGravity(Gravity.END);
+                holder.messageText.setBackground(context.getDrawable(R.drawable.message_background_me));
             } else {
-                holder.messageText.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+               holder.messageContainer.setGravity(Gravity.START);
+                holder.messageText.setBackground(context.getDrawable(R.drawable.message_background_other));
             }
             holder.setMessageText(message.getContents());
         }
@@ -49,10 +54,12 @@ public class MessageAdapter extends RealmRecyclerViewAdapter<Message, MessageAda
     public static class MessageHolder extends RecyclerView.ViewHolder {
 
         private TextView messageText;
+        private RelativeLayout messageContainer;
 
         public MessageHolder(View itemView) {
             super(itemView);
             messageText = (TextView) itemView.findViewById(R.id.messageText);
+            messageContainer = (RelativeLayout) itemView.findViewById(R.id.messageContainter);
         }
 
         public void setMessageText(String text) {

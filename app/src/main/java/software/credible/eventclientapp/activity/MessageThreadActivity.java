@@ -23,8 +23,7 @@ import roboguice.inject.InjectView;
 import software.credible.eventclientapp.R;
 import software.credible.eventclientapp.activity.adapter.MessageAdapter;
 import software.credible.eventclientapp.activity.helper.RoboAppCompatActivity;
-import software.credible.eventclientapp.managers.MessageManager;
-import software.credible.eventclientapp.managers.UserManager;
+import software.credible.eventclientapp.managers.DataManager;
 import software.credible.eventclientapp.model.Message;
 import software.credible.eventclientapp.model.Team;
 
@@ -60,17 +59,12 @@ public class MessageThreadActivity extends RoboAppCompatActivity  {
         initialLoadComplete = false;
         showProgress();
 
-        team = MessageManager.findCurrentTeamAsync(realm);
-        team.addChangeListener(new RealmChangeListener<RealmModel>() {
-            @Override
-            public void onChange(RealmModel element) {
-                if(team.isLoaded() && team != null && getSupportActionBar() != null) {
-                    getSupportActionBar().setTitle(team.getTeamName());
-                }
-            }
-        });
+        if(getSupportActionBar() != null) {
+            team = DataManager.findCurrentTeam(realm);
+            getSupportActionBar().setTitle(team.getTeamName());
+        }
 
-        messages = MessageManager.findAllMessagesAsync(realm);
+        messages = DataManager.findAllMessagesAsync(realm, team.getTeamName());
         messages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
             @Override
             public void onChange(RealmResults<Message> element) {
@@ -99,9 +93,12 @@ public class MessageThreadActivity extends RoboAppCompatActivity  {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_refresh:
+                DataManager.removeAllMessagesAsync(realm);
+                return true;
             case R.id.action_logout:
                 closeRealm();
-                UserManager.logoutActiveUser();
+                DataManager.logoutActiveUser();
                 Intent intent = new Intent(this, LoginActivity.class);
                 startActivity(intent);
                 finish();
@@ -127,13 +124,9 @@ public class MessageThreadActivity extends RoboAppCompatActivity  {
 
     public void sendMessage(View view) {
         if(!TextUtils.isEmpty(messageTextBox.getText())) {
-            MessageManager.addMessageAsync(messageTextBox.getText().toString());
+            DataManager.addMessageAsync(messageTextBox.getText().toString());
             messageTextBox.setText("");
         }
-    }
-
-    private void makeFakeMessage() {
-        MessageManager.addMessageAsync(new Date().toString());
     }
 
     private void showProgress() {

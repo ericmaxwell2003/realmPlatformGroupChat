@@ -18,8 +18,8 @@ import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 import software.credible.eventclientapp.GroupChatApplication;
 import software.credible.eventclientapp.R;
-import software.credible.eventclientapp.managers.UserManager;
 import software.credible.eventclientapp.activity.helper.RoboAppCompatActivity;
+import software.credible.eventclientapp.managers.DataManager;
 
 @ContentView(R.layout.activity_login)
 public class LoginActivity extends RoboAppCompatActivity implements SyncUser.Callback {
@@ -92,7 +92,7 @@ public class LoginActivity extends RoboAppCompatActivity implements SyncUser.Cal
     }
 
     public void loginComplete(SyncUser user) {
-        UserManager.setActiveUser(user);
+        DataManager.setActiveUser(user);
         Intent intent = new Intent(LoginActivity.this, MessageThreadActivity.class);
         startActivity(intent);
         finish();
