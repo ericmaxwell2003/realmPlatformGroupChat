@@ -3,12 +3,14 @@ package software.credible.eventclientapp.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 
 import java.util.Date;
 
@@ -17,6 +19,7 @@ import io.realm.RealmChangeListener;
 import io.realm.RealmModel;
 import io.realm.RealmResults;
 import roboguice.inject.ContentView;
+import roboguice.inject.InjectView;
 import software.credible.eventclientapp.R;
 import software.credible.eventclientapp.activity.adapter.MessageAdapter;
 import software.credible.eventclientapp.activity.helper.RoboAppCompatActivity;
@@ -32,7 +35,13 @@ public class MessageThreadActivity extends RoboAppCompatActivity  {
 
     private Realm realm;
     private MessageAdapter adapter;
+
+    @InjectView(R.id.recycler)
     private RecyclerView recycler;
+
+    @InjectView(R.id.messageText)
+    private EditText messageTextBox;
+
     private ProgressDialog progressDialog;
     private RealmResults<Message> messages;
     private Team team;
@@ -74,7 +83,9 @@ public class MessageThreadActivity extends RoboAppCompatActivity  {
 
         adapter = new MessageAdapter(this, messages, true);
 
-        recycler = (RecyclerView) findViewById(R.id.recycler);
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setAdapter(adapter);
     }
@@ -88,11 +99,8 @@ public class MessageThreadActivity extends RoboAppCompatActivity  {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_refresh:
-                makeFakeMessage();
-                return true;
             case R.id.action_logout:
-                realm.close();
+                closeRealm();
                 UserManager.logoutActiveUser();
                 Intent intent = new Intent(this, LoginActivity.class);
                 startActivity(intent);
@@ -106,8 +114,22 @@ public class MessageThreadActivity extends RoboAppCompatActivity  {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        realm.removeAllChangeListeners();
-        realm.close();
+        closeRealm();
+    }
+
+    private void closeRealm() {
+        if(realm != null) {
+            realm.removeAllChangeListeners();
+            realm.close();
+            realm = null;
+        }
+    }
+
+    public void sendMessage(View view) {
+        if(!TextUtils.isEmpty(messageTextBox.getText())) {
+            MessageManager.addMessageAsync(messageTextBox.getText().toString());
+            messageTextBox.setText("");
+        }
     }
 
     private void makeFakeMessage() {

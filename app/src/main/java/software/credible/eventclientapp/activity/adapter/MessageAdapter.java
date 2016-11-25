@@ -17,6 +17,7 @@ import java.util.Locale;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
+import io.realm.SyncUser;
 import software.credible.eventclientapp.R;
 import software.credible.eventclientapp.model.Message;
 
@@ -36,6 +37,11 @@ public class MessageAdapter extends RealmRecyclerViewAdapter<Message, MessageAda
     public void onBindViewHolder(MessageHolder holder, int position) {
         Message message = getItem(position);
         if(message != null) {
+            if(message.getUserReference().getUserIdentity().equals(SyncUser.currentUser().getIdentity())) {
+                holder.messageText.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
+            } else {
+                holder.messageText.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            }
             holder.setMessageText(message.getContents());
         }
     }
@@ -46,7 +52,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter<Message, MessageAda
 
         public MessageHolder(View itemView) {
             super(itemView);
-            messageText = (TextView) itemView.findViewById(R.id.summary);
+            messageText = (TextView) itemView.findViewById(R.id.messageText);
         }
 
         public void setMessageText(String text) {

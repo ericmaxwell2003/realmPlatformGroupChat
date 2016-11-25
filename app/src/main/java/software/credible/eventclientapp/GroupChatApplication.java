@@ -11,7 +11,7 @@ import io.realm.log.RealmLog;
 public class GroupChatApplication extends Application {
 
     public static final String AUTH_URL = "http://" + BuildConfig.OBJECT_SERVER_IP + ":9080/auth";
-    public static final String REALM_URL = "realm://" + BuildConfig.OBJECT_SERVER_IP + ":9080/c062404d538e5b04ac113651f4ac80a1/chat";
+    public static final String REALM_URL = "realm://" + BuildConfig.OBJECT_SERVER_IP + ":9080/79e0ee5df7260dd51ba8424c7a8ab23f/chat";
 
     @Override
     public void onCreate() {
